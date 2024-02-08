@@ -31,7 +31,7 @@ def get_mainwindow():
     """Get the main window of the application.
 
     Returns:
-        The root visual of the main window.
+        (MainWindow): The root visual of the main window.
     """
     try:
         hwnd_source = Interop.HwndSource.FromHwnd(HOST_APP.proc_window)
@@ -60,7 +60,7 @@ def set_statusbar_text(text):
         text (str): The text to be displayed in the status bar.
 
     Returns:
-        bool: True if the text was successfully set, False otherwise.
+        (bool): True if the text was successfully set, False otherwise.
     """
     status_bar_ptr = get_statusbar_hwnd()
 
@@ -125,23 +125,19 @@ def get_ribbon_roottype():
 
 
 def get_current_theme():
-    """
-    Get the current UI theme.
+    """Get the current UI theme.
 
     Returns:
-        UITheme: The current UI theme.
+        UITheme (UITheme): The current UI theme.
     """
     return UIThemeManager.CurrentTheme
 
+
 def set_current_theme(theme='Dark'):
-    """
-    Sets the current UI theme to either 'Dark' or 'Light'.
+    """Sets the current UI theme to either 'Dark' or 'Light'.
 
     Args:
         theme (str, optional): The theme to set. Defaults to 'Dark'.
-    
-    Returns:
-        None
     """
     if theme == 'Dark':
         UIThemeManager.CurrentTheme = UITheme.Dark
@@ -150,15 +146,14 @@ def set_current_theme(theme='Dark'):
 
 
 def resolve_icon_file(directory, icon_name):
-    """
-    Resolves the icon file path based on the current UI theme.
+    """Resolves the icon file path based on the current UI theme.
 
     Args:
         directory (str): The directory where the icon file is located.
         icon_name (str): The name of the icon file.
 
     Returns:
-        str: The full file path of the icon file.
+        full_file_path (str): The full file path of the icon file.
     """
     full_file_path = op.join(directory, icon_name)
 

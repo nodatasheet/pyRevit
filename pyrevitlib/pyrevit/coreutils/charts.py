@@ -1,5 +1,5 @@
 """Charts engine for output window."""
-#pylint: disable=C0103
+# pylint: disable=C0103
 from json import JSONEncoder
 
 from pyrevit.coreutils import timestamp, random_rgba_color
@@ -28,7 +28,7 @@ SCRIPT_TEMPLATE = \
 
 class _ChartsDataSetEncode(JSONEncoder):
     """JSON encoder for chart data sets."""
-    def default(self, dataset_obj): #pylint: disable=E0202, W0221
+    def default(self, dataset_obj):  # pylint: disable=E0202, W0221
         data_dict = dataset_obj.__dict__.copy()
         for key, value in data_dict.items():
             if key.startswith('_') or value == '' or value == []:
@@ -56,7 +56,9 @@ class PyRevitOutputChartDataset(object):
         Arguments are expected to be R, G, B, A values.
 
         Examples:
-            >>> dataset_obj.set_color(0xFF, 0x8C, 0x8D, 0.8)
+            ```python
+            dataset_obj.set_color(0xFF, 0x8C, 0x8D, 0.8)
+            ```
         """
         if len(args) == 4:
             self.backgroundColor = 'rgba({},{},{},{})'.format(args[0],
@@ -83,7 +85,9 @@ class PyRevitOutputChartData(object):
             (PyRevitOutputChartDataset): dataset wrapper object
 
         Examples:
-            >>> chart.data.new_dataset('set_a')
+            ```python
+            chart.data.new_dataset('set_a')
+            ```
         """
         new_dataset = PyRevitOutputChartDataset(dataset_label)
         self.datasets.append(new_dataset)
@@ -97,7 +101,6 @@ class PyRevitOutputChart(object):
         output (pyrevit.output.PyRevitOutputWindow):
             output window wrapper object
         chart_type (str): chart type name
-    
     """
     def __init__(self, output, chart_type=LINE_CHART, version=None):
         self._output = output
@@ -211,7 +214,9 @@ class PyRevitOutputChart(object):
             html_style (str): inline html css styling string
 
         Examples:
-            >>> chart.set_style('height:150px')
+            ```python
+            chart.set_style('height:150px')
+            ```
         """
         self._style = html_style
 

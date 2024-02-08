@@ -1,7 +1,9 @@
 """Reusable WPF forms for pyRevit.
 
 Examples:
-    >>> from pyrevit.forms import WPFWindow
+    ```python
+    from pyrevit.forms import WPFWindow
+    ```
 """
 #pylint: disable=consider-using-f-string,wrong-import-position
 
@@ -149,16 +151,18 @@ class WPFWindow(framework.Windows.Window):
         set_owner (bool): set the owner of window to host app window
 
     Examples:
-        >>> from pyrevit import forms
-        >>> layout = '<Window ' \
-        >>>          'xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" ' \
-        >>>          'xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" ' \
-        >>>          'ShowInTaskbar="False" ResizeMode="NoResize" ' \
-        >>>          'WindowStartupLocation="CenterScreen" ' \
-        >>>          'HorizontalContentAlignment="Center">' \
-        >>>          '</Window>'
-        >>> w = forms.WPFWindow(layout, literal_string=True)
-        >>> w.show()
+        ```python
+        from pyrevit import forms
+        layout = '<Window ' \
+                 'xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" ' \
+                 'xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" ' \
+                 'ShowInTaskbar="False" ResizeMode="NoResize" ' \
+                 'WindowStartupLocation="CenterScreen" ' \
+                 'HorizontalContentAlignment="Center">' \
+                 '</Window>'
+        w = forms.WPFWindow(layout, literal_string=True)
+        w.show()
+        ```
     """
 
     def __init__(self, xaml_source, literal_string=False, handle_esc=True, set_owner=True):
@@ -182,9 +186,6 @@ class WPFWindow(framework.Windows.Window):
                 Defaults to True.
             set_owner (bool, optional): Whether to se the window owner.
                 Defaults to True.
-
-        Returns:
-            None
         """
         # create new id for this window
         self.window_id = coreutils.new_uuid()
@@ -202,6 +203,7 @@ class WPFWindow(framework.Windows.Window):
         WPFWindow.setup_resources(self)
         if handle_esc:
             self.setup_default_handlers()
+
 
     def _determine_xaml(self, xaml_source):
         xaml_file = xaml_source
@@ -455,14 +457,16 @@ class WPFPanel(framework.Windows.Controls.Page):
     panel_source (str): xaml source filepath
 
     Examples:
-        >>> from pyrevit import forms
-        >>> class MyPanel(forms.WPFPanel):
-        ...     panel_id = "181e05a4-28f6-4311-8a9f-d2aa528c8755"
-        ...     panel_source = "MyPanel.xaml"
+        ```python
+        from pyrevit import forms
+        class MyPanel(forms.WPFPanel):
+            panel_id = "181e05a4-28f6-4311-8a9f-d2aa528c8755"
+            panel_source = "MyPanel.xaml"
 
-        >>> forms.register_dockable_panel(MyPanel)
-        >>> # then from the button that needs to open the panel
-        >>> forms.open_dockable_panel("181e05a4-28f6-4311-8a9f-d2aa528c8755")
+        forms.register_dockable_panel(MyPanel)
+        # then from the button that needs to open the panel
+        forms.open_dockable_panel("181e05a4-28f6-4311-8a9f-d2aa528c8755")
+        ```
     """
 
     panel_id = None
@@ -818,45 +822,52 @@ class SelectFromList(TemplateUserInputWindow):
                 Defaults to 'sorted'.
 
     Examples:
-        >>> from pyrevit import forms
-        >>> items = ['item1', 'item2', 'item3']
-        >>> forms.SelectFromList.show(items, button_name='Select Item')
-        >>> ['item1']
-
-        >>> from pyrevit import forms
-        >>> ops = [viewsheet1, viewsheet2, viewsheet3]
-        >>> res = forms.SelectFromList.show(ops,
-        ...                                 multiselect=False,
-        ...                                 name_attr='Name',
-        ...                                 button_name='Select Sheet')
-
-        >>> from pyrevit import forms
-        >>> ops = {'Sheet Set A': [viewsheet1, viewsheet2, viewsheet3],
-        ...        'Sheet Set B': [viewsheet4, viewsheet5, viewsheet6]}
-        >>> res = forms.SelectFromList.show(ops,
-        ...                                 multiselect=True,
-        ...                                 name_attr='Name',
-        ...                                 group_selector_title='Sheet Sets',
-        ...                                 button_name='Select Sheets',
-        ...                                 sort_groups='sorted')
-
+        ```python
+        from pyrevit import forms
+        items = ['item1', 'item2', 'item3']
+        forms.SelectFromList.show(items, button_name='Select Item')
+        ['item1']
+        ```
+        ```python
+        from pyrevit import forms
+        ops = [viewsheet1, viewsheet2, viewsheet3]
+        res = forms.SelectFromList.show(ops,
+                                        multiselect=False,
+                                        name_attr='Name',
+                                        button_name='Select Sheet')
+        ```
+        
+        ```python
+        from pyrevit import forms
+        ops = {'Sheet Set A': [viewsheet1, viewsheet2, viewsheet3],
+               'Sheet Set B': [viewsheet4, viewsheet5, viewsheet6]}
+        res = forms.SelectFromList.show(ops,
+                                        multiselect=True,
+                                        name_attr='Name',
+                                        group_selector_title='Sheet Sets',
+                                        button_name='Select Sheets',
+                                        sort_groups='sorted')
+        ```
+        
         This module also provides a wrapper base class :obj:`TemplateListItem`
         for when the checkbox option is wrapping another element,
         e.g. a Revit ViewSheet. Derive from this base class and define the
         name property to customize how the checkbox is named on the dialog.
 
-        >>> from pyrevit import forms
-        >>> class MyOption(forms.TemplateListItem):
-        ...    @property
-        ...    def name(self):
-        ...        return '{} - {}{}'.format(self.item.SheetNumber,
-        ...                                  self.item.SheetNumber)
-        >>> ops = [MyOption('op1'), MyOption('op2', True), MyOption('op3')]
-        >>> res = forms.SelectFromList.show(ops,
-        ...                                 multiselect=True,
-        ...                                 button_name='Select Item')
-        >>> [bool(x) for x in res]  # or [x.state for x in res]
+        ```python
+        from pyrevit import forms
+        class MyOption(forms.TemplateListItem):
+           @property
+           def name(self):
+               return '{} - {}{}'.format(self.item.SheetNumber,
+                                         self.item.SheetNumber)
+        ops = [MyOption('op1'), MyOption('op2', True), MyOption('op3')]
+        res = forms.SelectFromList.show(ops,
+                                        multiselect=True,
+                                        button_name='Select Item')
+        [bool(x) for x in res]  # or [x.state for x in res]
         [True, False, True]
+        ```
 
     """
 
@@ -961,7 +972,7 @@ class SelectFromList(TemplateUserInputWindow):
 
     @staticmethod
     def _natural_sort_key(key):
-        return [int(c) if c.isdigit() else c.lower() for c in re.split('(\d+)', key)]
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', key)]
 
     def _prepare_context(self):
         if isinstance(self._context, dict) and self._context.keys():
@@ -1177,29 +1188,33 @@ class CommandSwitchWindow(TemplateUserInputWindow):
     Examples:
         This is an example with series of command options:
 
-        >>> from pyrevit import forms
-        >>> ops = ['option1', 'option2', 'option3', 'option4']
-        >>> forms.CommandSwitchWindow.show(ops, message='Select Option')
+        ```python
+        from pyrevit import forms
+        ops = ['option1', 'option2', 'option3', 'option4']
+        forms.CommandSwitchWindow.show(ops, message='Select Option')
         'option2'
+        ```
 
         A more advanced example of combining command options, on/off switches,
         and option or switch configuration options:
 
-        >>> from pyrevit import forms
-        >>> ops = ['option1', 'option2', 'option3', 'option4']
-        >>> switches = ['switch1', 'switch2']
-        >>> cfgs = {'option1': { 'background': '0xFF55FF'}}
-        >>> rops, rswitches = forms.CommandSwitchWindow.show(
-        ...     ops,
-        ...     switches=switches
-        ...     message='Select Option',
-        ...     config=cfgs,
-        ...     recognize_access_key=False
-        ...     )
-        >>> rops
+        ```python
+        from pyrevit import forms
+        ops = ['option1', 'option2', 'option3', 'option4']
+        switches = ['switch1', 'switch2']
+        cfgs = {'option1': { 'background': '0xFF55FF'}}
+        rops, rswitches = forms.CommandSwitchWindow.show(
+            ops,
+            switches=switches
+            message='Select Option',
+            config=cfgs,
+            recognize_access_key=False
+            )
+        rops
         'option2'
-        >>> rswitches
+        rswitches
         {'switch1': False, 'switch2': True}
+        ```
     """
 
     xaml_source = 'CommandSwitchWindow.xaml'
@@ -1323,10 +1338,12 @@ class GetValueWindow(TemplateUserInputWindow):
     """Standard form to get simple values from user.
 
     Examples:
-        >>> from pyrevit import forms
-        >>> items = ['item1', 'item2', 'item3']
-        >>> forms.SelectFromList.show(items, button_name='Select Item')
-        >>> ['item1']
+        ```python
+        from pyrevit import forms
+        items = ['item1', 'item2', 'item3']
+        forms.SelectFromList.show(items, button_name='Select Item')
+        ['item1']
+        ```
     """
 
     xaml_source = 'GetValueWindow.xaml'
@@ -1493,8 +1510,10 @@ class WarningBar(TemplatePromptBar):
         title (string): warning bar text
 
     Examples:
-        >>> with WarningBar(title='my warning'):
-        ...    # do stuff
+        ```python
+        with WarningBar(title='my warning'):
+           # do stuff
+        ```
     """
 
     xaml_source = 'WarningBar.xaml'
@@ -1513,18 +1532,22 @@ class ProgressBar(TemplatePromptBar):
         step (int): update progress intervals
 
     Examples:
-        >>> from pyrevit import forms
-        >>> count = 1
-        >>> with forms.ProgressBar(title='my command progress message') as pb:
-        ...    # do stuff
-        ...    pb.update_progress(count, 100)
-        ...    count += 1
+        ```python
+        from pyrevit import forms
+        count = 1
+        with forms.ProgressBar(title='my command progress message') as pb:
+           # do stuff
+           pb.update_progress(count, 100)
+           count += 1
+        ```
 
         Progress bar title could also be customized to show the current and
         total progress values. In example below, the progress bar message
         will be in format "0 of 100"
 
-        >>> with forms.ProgressBar(title='{value} of {max_value}') as pb:
+        ```python
+        with forms.ProgressBar(title='{value} of {max_value}') as pb:
+        ```
 
         By default progress bar updates the progress every time the
         .update_progress method is called. For operations with a large number
@@ -1533,23 +1556,29 @@ class ProgressBar(TemplatePromptBar):
         set the value of step argument to something larger than 1. In example
         below, the progress bar updates once per every 10 units of progress.
 
-        >>> with forms.ProgressBar(title='message', steps=10):
+        ```python
+        with forms.ProgressBar(title='message', steps=10):
+        ```
 
         Progress bar could also be set to indeterminate for operations of
         unknown length. In this case, the progress bar will show an infinitely
         running ribbon:
 
-        >>> with forms.ProgressBar(title='message', indeterminate=True):
+        ```python
+        with forms.ProgressBar(title='message', indeterminate=True):
+        ```
 
         if cancellable is set on the object, a cancel button will show on the
         progress bar and .cancelled attribute will be set on the ProgressBar
         instance if users clicks on cancel button:
 
-        >>> with forms.ProgressBar(title='message',
-        ...                        cancellable=True) as pb:
-        ...    # do stuff
-        ...    if pb.cancelled:
-        ...        # wrap up and cancel operation
+        ```python
+        with forms.ProgressBar(title='message',
+                               cancellable=True) as pb:
+           # do stuff
+           if pb.cancelled:
+               # wrap up and cancel operation
+        ```
     """
 
     xaml_source = 'ProgressBar.xaml'
@@ -1683,19 +1712,21 @@ class SearchPrompt(WPFWindow):
             matched strings, and dict of switches otherwise.
 
     Examples:
-        >>> from pyrevit import forms
-        >>> # assume search input of '/switch1 target1'
-        >>> matched_str, args, switches = forms.SearchPrompt.show(
-        ...     search_db=['target1', 'target2', 'target3', 'target4'],
-        ...     switches=['/switch1', '/switch2'],
-        ...     search_tip='pyRevit Search'
-        ...     )
-        ... matched_str
+        ```python
+        from pyrevit import forms
+        # assume search input of '/switch1 target1'
+        matched_str, args, switches = forms.SearchPrompt.show(
+            search_db=['target1', 'target2', 'target3', 'target4'],
+            switches=['/switch1', '/switch2'],
+            search_tip='pyRevit Search'
+            )
+        matched_str
         'target1'
-        ... args
+        args
         ['--help', '--branch', 'branchname']
-        ... switches
+        switches
         {'/switch1': True, '/switch2': False}
+        ```
     """
     def __init__(self, search_db, width, height, **kwargs):
         """Initialize search prompt window."""
@@ -2040,10 +2071,12 @@ def select_revisions(title='Select Revision',
         (list[DB.Revision]): list of selected revisions
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_revisions()
-        ... [<Autodesk.Revit.DB.Revision object>,
-        ...  <Autodesk.Revit.DB.Revision object>]
+        ```python
+        from pyrevit import forms
+        forms.select_revisions()
+        [<Autodesk.Revit.DB.Revision object>,
+         <Autodesk.Revit.DB.Revision object>]
+        ```
     """
     doc = doc or DOCS.doc
     revisions = sorted(revit.query.get_revisions(doc=doc),
@@ -2097,10 +2130,12 @@ def select_sheets(title='Select Sheets',
         (list[DB.ViewSheet]): list of selected sheets
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_sheets()
-        ... [<Autodesk.Revit.DB.ViewSheet object>,
-        ...  <Autodesk.Revit.DB.ViewSheet object>]
+        ```python
+        from pyrevit import forms
+        forms.select_sheets()
+        [<Autodesk.Revit.DB.ViewSheet object>,
+         <Autodesk.Revit.DB.ViewSheet object>]
+        ```
     """
     doc = doc or DOCS.doc
 
@@ -2192,10 +2227,12 @@ def select_views(title='Select Views',
         (list[DB.View]): list of selected views
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_views()
-        ... [<Autodesk.Revit.DB.View object>,
-        ...  <Autodesk.Revit.DB.View object>]
+        ```python
+        from pyrevit import forms
+        forms.select_views()
+        [<Autodesk.Revit.DB.View object>,
+         <Autodesk.Revit.DB.View object>]
+        ```
     """
     doc = doc or DOCS.doc
 
@@ -2260,10 +2297,12 @@ def select_levels(title='Select Levels',
         (list[DB.Level]): list of selected levels
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_levels()
-        ... [<Autodesk.Revit.DB.Level object>,
-        ...  <Autodesk.Revit.DB.Level object>]
+        ```python
+        from pyrevit import forms
+        forms.select_levels()
+        [<Autodesk.Revit.DB.Level object>,
+         <Autodesk.Revit.DB.Level object>]
+        ```
     """
     doc = doc or DOCS.doc
 
@@ -2328,10 +2367,12 @@ def select_viewtemplates(title='Select View Templates',
         (list[DB.View]): list of selected view templates
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_viewtemplates()
-        ... [<Autodesk.Revit.DB.View object>,
-        ...  <Autodesk.Revit.DB.View object>]
+        ```python
+        from pyrevit import forms
+        forms.select_viewtemplates()
+        [<Autodesk.Revit.DB.View object>,
+         <Autodesk.Revit.DB.View object>]
+        ```
     """
     doc = doc or DOCS.doc
     all_viewtemplates = revit.query.get_all_view_templates(doc=doc)
@@ -2375,10 +2416,12 @@ def select_schedules(title='Select Schedules',
         (list[DB.ViewSchedule]): list of selected schedules
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_schedules()
-        ... [<Autodesk.Revit.DB.ViewSchedule object>,
-        ...  <Autodesk.Revit.DB.ViewSchedule object>]
+        ```python
+        from pyrevit import forms
+        forms.select_schedules()
+        [<Autodesk.Revit.DB.ViewSchedule object>,
+         <Autodesk.Revit.DB.ViewSchedule object>]
+        ```
     """
     doc = doc or DOCS.doc
     all_schedules = revit.query.get_all_schedules(doc=doc)
@@ -2422,10 +2465,12 @@ def select_open_docs(title='Select Open Documents',
         (list[DB.Document]): list of selected documents
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_open_docs()
-        ... [<Autodesk.Revit.DB.Document object>,
-        ...  <Autodesk.Revit.DB.Document object>]
+        ```python
+        from pyrevit import forms
+        forms.select_open_docs()
+        [<Autodesk.Revit.DB.Document object>,
+         <Autodesk.Revit.DB.Document object>]
+        ```
     """
     # find open documents other than the active doc
     open_docs = [d for d in revit.docs if not d.IsLinked]    #pylint: disable=E1101
@@ -2473,9 +2518,11 @@ def select_titleblocks(title='Select Titleblock',
         (DB.ElementId): selected titleblock id.
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_titleblocks()
-        ... <Autodesk.Revit.DB.ElementId object>
+        ```python
+        from pyrevit import forms
+        forms.select_titleblocks()
+        <Autodesk.Revit.DB.ElementId object>
+        ```
     """
     doc = doc or DOCS.doc
     titleblocks = DB.FilteredElementCollector(doc)\
@@ -2511,9 +2558,11 @@ def select_swatch(title='Select Color Swatch', button_name='Select'):
         (pyrevit.coreutils.colors.RGB): rgb color
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_swatch(title="Select Text Color")
-        ... <RGB #CD8800>
+        ```python
+        from pyrevit import forms
+        forms.select_swatch(title="Select Text Color")
+        <RGB #CD8800>
+        ```
     """
     itemplate = utils.load_ctrl_template(
         os.path.join(XAML_FILES_DIR, "SwatchContainerStyle.xaml")
@@ -2543,11 +2592,13 @@ def select_image(images, title='Select Image', button_name='Select'):
         (str): path of the selected image
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.select_image(['C:/path/to/image1.png',
-                                'C:/path/to/image2.png'],
-                                title="Select Variation")
-        ... 'C:/path/to/image1.png'
+        ```python
+        from pyrevit import forms
+        forms.select_image(['C:/path/to/image1.png',
+                            'C:/path/to/image2.png'],
+                            title="Select Variation")
+        'C:/path/to/image1.png'
+        ```
     """
     ptemplate = utils.load_itemspanel_template(
         os.path.join(XAML_FILES_DIR, "ImageListPanelStyle.xaml")
@@ -2605,14 +2656,16 @@ def select_parameters(src_element,
         (list[ParamDef]): list of paramdef objects
 
     Examples:
-        >>> forms.select_parameter(
-        ...     src_element,
-        ...     title='Select Parameters',
-        ...     multiple=True,
-        ...     include_instance=True,
-        ...     include_type=True
-        ... )
-        ... [<ParamDef >, <ParamDef >]
+        ```python
+        forms.select_parameter(
+            src_element,
+            title='Select Parameters',
+            multiple=True,
+            include_instance=True,
+            include_type=True
+        )
+        [<ParamDef >, <ParamDef >]
+        ```
     """
     param_defs = []
     non_storage_type = coreutils.get_enum_none(DB.StorageType)
@@ -2690,14 +2743,16 @@ def select_family_parameters(family_doc,
         (list[DB.FamilyParameter]): list of family parameter objects
 
     Examples:
-        >>> forms.select_family_parameters(
-        ...     family_doc,
-        ...     title='Select Parameters',
-        ...     multiple=True,
-        ...     include_instance=True,
-        ...     include_type=True
-        ... )
-        ... [<DB.FamilyParameter >, <DB.FamilyParameter >]
+        ```python
+        forms.select_family_parameters(
+            family_doc,
+            title='Select Parameters',
+            multiple=True,
+            include_instance=True,
+            include_type=True
+        )
+        [<DB.FamilyParameter >, <DB.FamilyParameter >]
+        ```
     """
     family_doc = family_doc or DOCS.doc
     family_params = revit.query.get_family_parameters(family_doc)
@@ -2751,12 +2806,12 @@ def select_family_parameters(family_doc,
 def alert(msg, title=None, sub_msg=None, expanded=None, footer='',
           ok=True, cancel=False, yes=False, no=False, retry=False,
           warn_icon=True, options=None, exitscript=False):
-    """Show a task dialog with given message.
+    r"""Show a task dialog with given message.
 
     Args:
         msg (str): message to be displayed
         title (str, optional): task dialog title
-        sub_msg (str, optional): sub message
+        sub_msg (str, optional): sub message, use html to create clickable links
         expanded (str, optional): expanded area message
         footer (str, optional): footer text
         ok (bool, optional): show OK button, defaults to True
@@ -2772,9 +2827,12 @@ def alert(msg, title=None, sub_msg=None, expanded=None, footer='',
         (bool): True if okay, yes, or retry, otherwise False
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.alert('Are you sure?',
-        ...              ok=False, yes=True, no=True, exitscript=True)
+        ```python
+        from pyrevit import forms
+        forms.alert('Are you sure?',
+                    sub_msg='<a href=\"https://discourse.pyrevitlabs.io/ \">Click here if you are not sure and want to go to the pyRevit Forum</a>',
+                    ok=False, yes=True, no=True, exitscript=True)
+        ```
     """
     # BUILD DIALOG
     cmd_name = EXEC_PARAMS.command_name
@@ -2884,10 +2942,12 @@ def alert_ifnot(condition, msg, *args, **kwargs):
         (bool): True if okay, yes, or retry, otherwise False
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.alert_ifnot(value > 12,
-        ...                   'Are you sure?',
-        ...                    ok=False, yes=True, no=True, exitscript=True)
+        ```python
+        from pyrevit import forms
+        forms.alert_ifnot(value > 12,
+                          'Are you sure?',
+                           ok=False, yes=True, no=True, exitscript=True)
+        ```
     """
     if not condition:
         return alert(msg, *args, **kwargs)
@@ -2946,11 +3006,12 @@ def show_balloon(header, text, tooltip='', group='', is_favourite=False, is_new=
         click_result (def): Executed after a click event
 
     Examples:
-        >>> from pyrevit import forms
-        >>> date = '2019-01-01 00:00:00'
-        >>> date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
-        >>> forms.show_balloon("my header", "Lorem ipsum", tooltip='tooltip',   group='group', is_favourite=True, is_new=True, timestamp = date, click_result = forms.result_item_result_clicked)
-        ...
+        ```python
+        from pyrevit import forms
+        date = '2019-01-01 00:00:00'
+        date = datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
+        forms.show_balloon("my header", "Lorem ipsum", tooltip='tooltip',   group='group', is_favourite=True, is_new=True, timestamp = date, click_result = forms.result_item_result_clicked)
+        ```
     """
     result_item = Autodesk.Internal.InfoCenter.ResultItem()
     result_item.Category = header
@@ -2984,18 +3045,24 @@ def pick_file(file_ext='*', files_filter='', init_dir='',
         (str | list[str]): file path or list of file paths if multi_file=True
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.pick_file(file_ext='csv')
-        ... r'C:\output\somefile.csv'
+        ```python
+        from pyrevit import forms
+        forms.pick_file(file_ext='csv')
+        r'C:\output\somefile.csv'
+        ```
 
-        >>> forms.pick_file(file_ext='csv', multi_file=True)
-        ... [r'C:\output\somefile1.csv', r'C:\output\somefile2.csv']
+        ```python
+        forms.pick_file(file_ext='csv', multi_file=True)
+        [r'C:\output\somefile1.csv', r'C:\output\somefile2.csv']
+        ```
 
-        >>> forms.pick_file(files_filter='All Files (*.*)|*.*|'
+        ```python
+        forms.pick_file(files_filter='All Files (*.*)|*.*|'
                                          'Excel Workbook (*.xlsx)|*.xlsx|'
                                          'Excel 97-2003 Workbook|*.xls',
                             multi_file=True)
-        ... [r'C:\output\somefile1.xlsx', r'C:\output\somefile2.xls']
+        [r'C:\output\somefile1.xlsx', r'C:\output\somefile2.xls']
+        ```
     """
     of_dlg = Forms.OpenFileDialog()
     if files_filter:
@@ -3037,9 +3104,11 @@ def save_file(file_ext='', files_filter='', init_dir='', default_name='',
         (str): file path
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.save_file(file_ext='csv')
-        ... r'C:\output\somefile.csv'
+        ```python
+        from pyrevit import forms
+        forms.save_file(file_ext='csv')
+        r'C:\output\somefile.csv'
+        ```
     """
     sf_dlg = Forms.SaveFileDialog()
     if files_filter:
@@ -3136,9 +3205,11 @@ def check_familydoc(doc=None, family_cat=None, exitscript=False):
         (bool): True if doc is a Family and of provided category
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.check_familydoc(doc=revit.doc, family_cat='Data Devices')
-        ... True
+        ```python
+        from pyrevit import forms
+        forms.check_familydoc(doc=revit.doc, family_cat='Data Devices')
+        True
+        ```
     """
     doc = doc or DOCS.doc
     family_cat = revit.query.get_category(family_cat)
@@ -3166,9 +3237,11 @@ def check_modeldoc(doc=None, exitscript=False):
         (bool): True if doc is a Model
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.check_modeldoc(doc=revit.doc)
-        ... True
+        ```python
+        from pyrevit import forms
+        forms.check_modeldoc(doc=revit.doc)
+        True
+        ```
     """
     doc = doc or DOCS.doc
     if not doc.IsFamilyDocument:
@@ -3190,9 +3263,11 @@ def check_modelview(view, exitscript=False):
         (bool): True if view is model view
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.check_modelview(view=revit.active_view)
-        ... True
+        ```python
+        from pyrevit import forms
+        forms.check_modelview(view=revit.active_view)
+        True
+        ```
     """
     if not isinstance(view, (DB.View3D, DB.ViewPlan, DB.ViewSection)):
         alert("Active view must be a model view.", exitscript=exitscript)
@@ -3212,9 +3287,11 @@ def check_viewtype(view, view_type, exitscript=False):
         (bool): True if view is of given type
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.check_viewtype(revit.active_view, DB.ViewType.DrawingSheet)
-        ... True
+        ```python
+        from pyrevit import forms
+        forms.check_viewtype(revit.active_view, DB.ViewType.DrawingSheet)
+        True
+        ```
     """
     if view.ViewType != view_type:
         alert(
@@ -3237,9 +3314,11 @@ def check_graphicalview(view, exitscript=False):
         (bool): True if view is a graphical view
 
     Examples:
-        >>> from pyrevit import forms
-        >>> forms.check_graphicalview(revit.active_view)
-        ... True
+        ```python
+        from pyrevit import forms
+        forms.check_graphicalview(revit.active_view)
+        True
+        ```
     """
     if not view.Category:
         alert(
@@ -3263,14 +3342,16 @@ def toast(message, title='pyRevit', appid='pyRevit',
         actions (dict): dictionary of button names and action strings
 
     Examples:
-        >>> script.toast("Hello World!",
-        ...              title="My Script",
-        ...              appid="MyAPP",
-        ...              click="https://eirannejad.github.io/pyRevit/",
-        ...              actions={
-        ...                  "Open Google":"https://google.com",
-        ...                  "Open Toast64":"https://github.com/go-toast/toast"
-        ...                  })
+        ```python
+        script.toast("Hello World!",
+                     title="My Script",
+                     appid="MyAPP",
+                     click="https://eirannejad.github.io/pyRevit/",
+                     actions={
+                         "Open Google":"https://google.com",
+                         "Open Toast64":"https://github.com/go-toast/toast"
+                         })
+        ```
     """
     toaster.send_toast(
         message,
@@ -3297,11 +3378,13 @@ def ask_for_string(default=None, prompt=None, title=None, **kwargs):
         (str): selected string value
 
     Examples:
-        >>> forms.ask_for_string(
-        ...     default='some-tag',
-        ...     prompt='Enter new tag name:',
-        ...     title='Tag Manager')
-        ... 'new-tag'
+        ```python
+        forms.ask_for_string(
+            default='some-tag',
+            prompt='Enter new tag name:',
+            title='Tag Manager')
+        'new-tag'
+        ```
     """
     return GetValueWindow.show(
         None,
@@ -3331,12 +3414,14 @@ def ask_for_unique_string(reserved_values,
         (str): selected unique string
 
     Examples:
-        >>> forms.ask_for_unique_string(
-        ...     prompt='Enter a Unique Name',
-        ...     title=self.Title,
-        ...     reserved_values=['Ehsan', 'Gui', 'Guido'],
-        ...     owner=self)
-        ... 'unique string'
+        ```python
+        forms.ask_for_unique_string(
+            prompt='Enter a Unique Name',
+            title=self.Title,
+            reserved_values=['Ehsan', 'Gui', 'Guido'],
+            owner=self)
+        'unique string'
+        ```
 
         In example above, owner argument is provided to be passed to underlying
         :obj:`GetValueWindow`.
@@ -3370,13 +3455,15 @@ def ask_for_one_item(items, default=None, prompt=None, title=None, **kwargs):
         (str): selected item
 
     Examples:
-        >>> forms.ask_for_one_item(
-        ...     ['test item 1', 'test item 2', 'test item 3'],
-        ...     default='test item 2',
-        ...     prompt='test prompt',
-        ...     title='test title'
-        ... )
-        ... 'test item 1'
+        ```python
+        forms.ask_for_one_item(
+            ['test item 1', 'test item 2', 'test item 3'],
+            default='test item 2',
+            prompt='test prompt',
+            title='test title'
+        )
+        'test item 1'
+        ```
     """
     return GetValueWindow.show(
         items,
@@ -3404,8 +3491,10 @@ def ask_for_date(default=None, prompt=None, title=None, **kwargs):
         (datetime.datetime): selected date
 
     Examples:
-        >>> forms.ask_for_date(default="", title="Enter deadline:")
-        ... datetime.datetime(2019, 5, 17, 0, 0)
+        ```python
+        forms.ask_for_date(default="", title="Enter deadline:")
+        datetime.datetime(2019, 5, 17, 0, 0)
+        ```
     """
     # FIXME: window does not set default value
     return GetValueWindow.show(
@@ -3437,14 +3526,16 @@ def ask_for_number_slider(default=None, min=0, max=100, interval=1, prompt=None,
         (str): selected string value
 
     Examples:
-        >>> forms.ask_for_number_slider(
-        ...     default=50,
-        ...     min = 0,
-        ...     max = 100,
-        ...     interval = 5,
-        ...     prompt='Select a number:',
-        ...     title='test title')
-        ... '50'
+        ```python
+        forms.ask_for_number_slider(
+            default=50,
+            min = 0,
+            max = 100,
+            interval = 5,
+            prompt='Select a number:',
+            title='test title')
+        '50'
+        ```
     
     In this example, the slider will allow values such as '40, 45, 50, 55, 60' etc
     """
@@ -3497,8 +3588,10 @@ def ask_for_color(default=None):
         (str): selected color in HEX ARGB e.g. #ff808080, or None if cancelled
 
     Examples:
-        >>> forms.ask_for_color()
-        ... '#ff808080'
+        ```python
+        forms.ask_for_color()
+        '#ff808080'
+        ```
     """
     # colorDlg.Color
     color_picker = Forms.ColorDialog()
@@ -3521,6 +3614,8 @@ def inform_wip():
     """Show work-in-progress prompt to user and exit script.
 
     Examples:
-        >>> forms.inform_wip()
+        ```python
+        forms.inform_wip()
+        ```
     """
     alert("Work in progress.", exitscript=True)

@@ -141,7 +141,7 @@ REFERENCE_RE = NOIMG + BRK + r'\s?\[([^\]]*)\]'
 SHORT_REF_RE = NOIMG + r'\[([^\]]+)\]'
 
 # ![alt text][2]
-IMAGE_REFERENCE_RE = r'\!' + BRK + '\s?\[([^\]]*)\]'
+IMAGE_REFERENCE_RE = r'\!' + BRK + r'\s?\[([^\]]*)\]'
 
 # stand-alone * or _
 NOT_STRONG_RE = r'((^| )(\*|_)( |$))'
@@ -171,7 +171,7 @@ def dequote(string):
         return string
 
 
-ATTR_RE = re.compile("\{@([^\}]*)=([^\}]*)}")  # {@id=123}
+ATTR_RE = re.compile(r"\{@([^\}]*)=([^\}]*)}")  # {@id=123}
 
 
 def handleAttributes(text, parent):
@@ -344,7 +344,7 @@ class HtmlPattern(Pattern):
                 try:
                     return self.markdown.serializer(value)
                 except:
-                    return '\%s' % value
+                    return r'\%s' % value
 
         return util.INLINE_PLACEHOLDER_RE.sub(get_stash, text)
 
