@@ -1,11 +1,11 @@
-"""Wrapper module for pyRevitLabs functionality"""
+"""Wrapper module for pyRevitLabs functionality."""
 import logging
 import os.path as op
 #pylint: disable=W0703,C0302,C0103,W0614,E0401,W0611,C0413
 #pylint: disable=superfluous-parens,useless-import-alias
 from pyrevit import HOST_APP, EXEC_PARAMS, HOME_DIR, BIN_DIR
 from pyrevit.framework import clr
-import pyrevit.compat as compat
+from pyrevit.compat import PY2
 
 # try loading pyrevitlabs
 clr.AddReference('Nett')
@@ -22,7 +22,7 @@ clr.AddReference('System.Numerics.Vectors')
 clr.AddReference('System.Text.Encoding.CodePages')
 # Revit, and its builtin addons, ship multiple versions of this assembly
 # let's make sure our specific version is loaded
-if compat.PY2:
+if PY2:
     clr.AddReferenceToFileAndPath(
         op.join(BIN_DIR, 'System.Runtime.CompilerServices.Unsafe.dll')
         )
@@ -101,13 +101,13 @@ class PyRevitOutputTarget(NLog.Targets.TargetWithLayout):
 
 
 def extract_build_from_exe(proc_path):
-    """Extract build number from host .exe file
+    """Extract build number from host .exe file.
 
     Args:
         proc_path (str): full path of the host .exe file
 
     Returns:
-        str: build number (e.g. '20170927_1515(x64)')
+        (str): build number (e.g. '20170927_1515(x64)')
     """
     # Revit 2021 has a bug on .VersionBuild
     ## it reports identical value as .VersionNumber
@@ -123,7 +123,7 @@ if not EXEC_PARAMS.doc_mode:
 
     # configure NLog
     #pylint: disable=W0201
-    if compat.PY2:
+    if PY2:
         config = NLog.Config.LoggingConfiguration()
         target = PyRevitOutputTarget()
         target.Name = __name__

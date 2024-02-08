@@ -1,3 +1,4 @@
+"""Revit DB objects wrappers."""
 import os.path as op
 
 from pyrevit import HOST_APP, PyRevitException
@@ -14,6 +15,7 @@ __all__ = ('BaseWrapper', 'ElementWrapper',
 
 
 class BaseWrapper(object):
+    """Base revit databse object wrapper."""
     def __init__(self, obj=None):
         self._wrapped = obj
 
@@ -54,6 +56,7 @@ class BaseWrapper(object):
 
 
 class ElementWrapper(BaseWrapper):
+    """Revit element wrapper."""
     def __init__(self, element):
         super(ElementWrapper, self).__init__(element)
         if not isinstance(self._wrapped, DB.Element):
@@ -129,6 +132,7 @@ class ElementWrapper(BaseWrapper):
 
 
 class ExternalRef(ElementWrapper):
+    """External reference wraper."""
     def __init__(self, link, extref):
         super(ExternalRef, self).__init__(link)
         self._extref = extref
@@ -155,6 +159,7 @@ class ExternalRef(ElementWrapper):
 
 
 class ProjectParameter(BaseWrapper):
+    """Project parameter wrapper."""
     def __init__(self, param_def, param_binding=None, param_ext_def=False):
         super(ProjectParameter, self).__init__()
         self.param_def = param_def
@@ -174,8 +179,12 @@ class ProjectParameter(BaseWrapper):
         # Revit <2017 does not have the Id parameter
         self.param_id = getattr(self.param_def, 'Id', None)
 
-        # Revit >2021 does not have the UnitType property
-        if HOST_APP.is_newer_than(2021, or_equal=True):
+
+        if HOST_APP.is_newer_than(2022, or_equal=True):
+            # GetSpecTypeId() Removed in Revit 2022
+            self.unit_type = self.param_def.GetDataType()
+        elif HOST_APP.is_exactly(2021):
+            # Revit >2021 does not have the UnitType property
             self.unit_type = self.param_def.GetSpecTypeId()
         else:
             self.unit_type = self.param_def.UnitType
@@ -206,6 +215,7 @@ class ProjectParameter(BaseWrapper):
 
 
 class ProjectInfo(BaseWrapper):
+    """Project information."""
     def __init__(self, doc):
         super(ProjectInfo, self).__init__()
         self._doc = doc
@@ -294,6 +304,7 @@ class ProjectInfo(BaseWrapper):
 
 
 class XYZPoint(BaseWrapper):
+    """Wrapper for XYZ point."""
     @property
     def x(self):
         return round(self._wrapped.X)

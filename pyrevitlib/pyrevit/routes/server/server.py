@@ -3,20 +3,26 @@
 #pylint: disable=missing-docstring
 import sys
 import traceback
-import urlparse
 import cgi
 import json
 import threading
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-from SocketServer import ThreadingMixIn
 
 from pyrevit.api import UI
 from pyrevit.coreutils.logger import get_logger
+from pyrevit.compat import PY3
+from pyrevit.compat import urlparse
 
 from pyrevit.routes.server import exceptions as excp
 from pyrevit.routes.server import base
 from pyrevit.routes.server import handler
 from pyrevit.routes.server import router
+
+if PY3:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from socketserver import ThreadingMixIn
+else:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+    from SocketServer import ThreadingMixIn
 
 
 mlogger = get_logger(__name__)
@@ -31,8 +37,9 @@ EVENT_HNDLR = UI.ExternalEvent.Create(REQUEST_HNDLR)
 
 
 class HttpRequestHandler(BaseHTTPRequestHandler):
+    """HTTP Requests Handler."""
     def _parse_api_path(self):
-        url_parts = urlparse.urlparse(self.path)
+        url_parts = urlparse(self.path)
         if url_parts:
             levels = url_parts.path.split('/')
             # host:ip/<api_name>/<route>/.../.../...
@@ -222,6 +229,7 @@ class HttpRequestHandler(BaseHTTPRequestHandler):
 
 
 class ThreadedHttpServer(ThreadingMixIn, HTTPServer):
+    """Threaded HTTP server."""
     allow_reuse_address = True
 
     def shutdown(self):
@@ -230,6 +238,14 @@ class ThreadedHttpServer(ThreadingMixIn, HTTPServer):
 
 
 class RoutesServer(object):
+    """Route server thread handler.
+
+    It runs an HTTP server on the given host and port.
+
+    Args:
+        host (str): host
+        port (int): port
+    """
     def __init__(self, host, port):
         self.server = ThreadedHttpServer((host, port), HttpRequestHandler)
         self.host = host

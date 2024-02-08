@@ -9,7 +9,7 @@ from pyrevit import HOST_APP, DOCS, PyRevitException
 from pyrevit import api
 from pyrevit import framework
 from pyrevit import compat
-from pyrevit.compat import safe_strtype
+from pyrevit.compat import PY3, safe_strtype
 from pyrevit import DB
 from pyrevit.revit import db
 from pyrevit.revit import features
@@ -83,7 +83,7 @@ def get_name(element, title_on_sheet=False):
                 element.Parameter[DB.BuiltInParameter.VIEW_DESCRIPTION]
             view_name = titleos_param.AsString()
 
-        # if view name could bot be extracted from title_on_sheet
+        # if view name could not be extracted from title_on_sheet
         if view_name:
             return view_name
         else:
@@ -94,7 +94,7 @@ def get_name(element, title_on_sheet=False):
 
     # have to use the imported Element otherwise
     # AttributeError occurs
-    if compat.PY3:
+    if PY3:
         return element.Name
     else:
         return Element.Name.__get__(element)
@@ -107,7 +107,7 @@ def get_type(element):
         element (DB.Element): source element
 
     Returns:
-        DB.ElementType: type object of given element
+        (DB.ElementType): type object of given element
     """
     type_id = element.GetTypeId()
     return element.Document.GetElement(type_id)
@@ -124,17 +124,17 @@ def get_family_name(element):
 # episode_id and guid explanation
 # https://thebuildingcoder.typepad.com/blog/2009/02/uniqueid-dwf-and-ifc-guid.html
 def get_episodeid(element):
-    """Extract episode id from element"""
+    """Extract episode id from element."""
     return str(element.UniqueId)[:36]
 
 
 def get_guid(element):
-    """Extract guid from given element"""
+    """Extract guid from given element."""
     uid = str(element.UniqueId)
     last_32_bits = int(uid[28:36], 16)
     element_id = int(uid[37:], 16)
     xor = last_32_bits ^ element_id
-    return uid[:28] +  "{0:x}".format(xor)
+    return uid[:28] + "{0:x}".format(xor)
 
 
 def get_param(element, param_name, default=None):
@@ -157,7 +157,7 @@ def get_location(element):
         element (DB.Element): source element
 
     Returns:
-        DB.XYZ: X, Y, Z of location point element
+        (DB.XYZ): X, Y, Z of location point element
     """
     locp = element.Location.Point
     return (locp.X, locp.Y, locp.Z)
@@ -168,10 +168,15 @@ def get_biparam_stringequals_filter(bip_paramvalue_dict):
     for bip, fvalue in bip_paramvalue_dict.items():
         bip_id = DB.ElementId(bip)
         bip_valueprovider = DB.ParameterValueProvider(bip_id)
-        bip_valuerule = DB.FilterStringRule(bip_valueprovider,
-                                            DB.FilterStringEquals(),
-                                            fvalue,
-                                            True)
+        if HOST_APP.is_newer_than(2022):
+            bip_valuerule = DB.FilterStringRule(bip_valueprovider,
+                                                DB.FilterStringEquals(),
+                                                fvalue)
+        else:
+            bip_valuerule = DB.FilterStringRule(bip_valueprovider,
+                                                DB.FilterStringEquals(),
+                                                fvalue,
+                                                True)
         filters.append(bip_valuerule)
 
     if filters:
@@ -265,7 +270,10 @@ def get_elements_by_param_value(param_name, param_value,
     if param_id:
         pvprov = DB.ParameterValueProvider(param_id)
         pfilter = DB.FilterStringEquals()
-        vrule = DB.FilterStringRule(pvprov, pfilter, param_value, True)
+        if HOST_APP.is_newer_than(2022):
+            vrule = DB.FilterStringRule(pvprov, pfilter, param_value)
+        else:
+            vrule = DB.FilterStringRule(pvprov, pfilter, param_value, True)
         if inverse:
             vrule = DB.FilterInverseRule(vrule)
         param_filter = DB.ElementParameterFilter(vrule)
@@ -962,10 +970,14 @@ def get_connected_circuits(element, spare=False, space=False):
         circuit_types.append(DB.Electrical.CircuitType.Spare)
     if space:
         circuit_types.append(DB.Electrical.CircuitType.Space)
-
-    if element.MEPModel and element.MEPModel.ElectricalSystems:
-        return [x for x in element.MEPModel.ElectricalSystems
-                if x.CircuitType in circuit_types]
+    if HOST_APP.is_newer_than(2021, or_equal=True): # deprecation of ElectricalSystems in 2021
+        if element.MEPModel and element.MEPModel.GetElectricalSystems():
+            return [x for x in element.MEPModel.GetElectricalSystems()
+                    if x.CircuitType in circuit_types]
+    else:
+        if element.MEPModel and element.MEPModel.ElectricalSystems:
+            return [x for x in element.MEPModel.ElectricalSystems
+                    if x.CircuitType in circuit_types]
 
 
 def get_element_categories(elements):
@@ -1412,7 +1424,7 @@ def get_doors(elements=None, doc=None, room_id=None):
         room_id (DB.ElementId): only doors associated with given room
 
     Returns:
-        list[DB.Element]: room instances
+        (list[DB.Element]): room instances
     """
     doc = doc or DOCS.doc
     all_doors = get_elements_by_categories([DB.BuiltInCategory.OST_Doors],
@@ -1514,13 +1526,13 @@ def get_titleblock_print_settings(tblock, printer_name, doc_psettings):
 
 
 def get_crop_region(view):
-    """Takes crop region of a view
+    """Takes crop region of a view.
 
     Args:
         view (DB.View): view to get crop region from
 
     Returns:
-        list[DB.CurveLoop]: list of curve loops
+        (list[DB.CurveLoop]): list of curve loops
     """
     crsm = view.GetCropRegionShapeManager()
     if HOST_APP.is_newer_than(2015):
@@ -1539,7 +1551,7 @@ def get_crop_region(view):
 
 
 def is_cropable_view(view):
-    """Check if view can be cropped"""
+    """Check if view can be cropped."""
     return not isinstance(view, (DB.ViewSheet, DB.TableView)) \
         and view.ViewType not in (DB.ViewType.Legend, DB.ViewType.DraftingView)
 
@@ -1559,15 +1571,19 @@ def get_element_workset(element):
         return workset_table.GetWorkset(element.WorksetId)
 
 
-def get_geometry(element, include_invisible=False):
+def get_geometry(element, include_invisible=False, compute_references=False):
     geom_opts = DB.Options()
     geom_opts.IncludeNonVisibleObjects = include_invisible
+    geom_opts.ComputeReferences = compute_references
     geom_objs = []
-    for gobj in element.Geometry[geom_opts]:
-        if isinstance(gobj, DB.GeometryInstance):
-            inst_geom = gobj.GetInstanceGeometry()
-            geom_objs.extend(list(inst_geom))
-        else:
-            geom_objs.append(gobj)
-    return geom_objs
-
+    try:
+        for gobj in element.Geometry[geom_opts]:
+            if isinstance(gobj, DB.GeometryInstance):
+                inst_geom = gobj.GetInstanceGeometry()
+                geom_objs.extend(list(inst_geom))
+            else:
+                geom_objs.append(gobj)
+        return geom_objs
+    except TypeError:
+        mlogger.debug("element %s has no geometry", element.Id.IntegerValue)
+        return

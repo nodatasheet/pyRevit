@@ -9,9 +9,6 @@ using pyRevitLabs.Common;
 
 namespace PyRevitLabs.PyRevit.Runtime {
     public class InvokableDLLEngine : ScriptEngine {
-        private string scriptSig = string.Empty;
-        private Assembly scriptAssm = null;
-
         public override void Init(ref ScriptRuntime runtime) {
             base.Init(ref runtime);
 
@@ -39,17 +36,15 @@ namespace PyRevitLabs.PyRevit.Runtime {
                         className = parts[1];
                     }
 
-                    if (scriptSig == null || CommonUtils.GetFileSignature(assmFile) != scriptSig) {
-                        scriptAssm = Assembly.Load(File.ReadAllBytes(assmFile));
-                    }
 
+                    Assembly scriptAssm = Assembly.Load(File.ReadAllBytes(assmFile));
                     var resultCode = CLREngine.ExecuteExternalCommand(scriptAssm, className, ref runtime);
                     if (resultCode == ScriptExecutorResultCodes.ExternalInterfaceNotImplementedException)
                         TaskDialog.Show(PyRevitLabsConsts.ProductName,
                             string.Format(
                                 "Can not find type \"{0}\" in assembly \"{1}\"",
                                 className,
-                                scriptAssm.Location
+                                assmFile
                                 ));
                     return resultCode;
                 }

@@ -2,8 +2,9 @@
 #pylint: disable=import-error,invalid-name
 from collections import namedtuple
 
-from pyrevit import revit, DB
+from pyrevit import revit, DB, HOST_APP
 from pyrevit import forms
+from System.Collections.Generic import List
 
 
 Taggable = namedtuple('Taggable', ['tag_type', 'element_type'])
@@ -14,7 +15,6 @@ curview = revit.active_view
 if isinstance(curview, DB.ViewSheet):
     forms.alert("You're on a Sheet. Activate a model view please.",
                 exitscript=True)
-
 
 options = {
     'Rooms': Taggable(
@@ -85,6 +85,74 @@ options = {
     'Furniture Systems': Taggable(
         tag_type=DB.BuiltInCategory.OST_FurnitureSystemTags,
         element_type=DB.BuiltInCategory.OST_FurnitureSystems
+        ),
+    'Structural framing': Taggable(
+        tag_type=DB.BuiltInCategory.OST_StructuralFramingTags,
+        element_type=DB.BuiltInCategory.OST_StructuralFraming
+        ),
+    'Structural foundations': Taggable(
+        tag_type=DB.BuiltInCategory.OST_StructuralFoundationTags,
+        element_type=DB.BuiltInCategory.OST_StructuralFoundation
+        ),
+    'Air terminals': Taggable(
+        tag_type=DB.BuiltInCategory.OST_DuctTerminalTags,
+        element_type=DB.BuiltInCategory.OST_DuctTerminal
+        ),
+    'Communication devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_CommunicationDeviceTags,
+        element_type=DB.BuiltInCategory.OST_CommunicationDevices
+        ),
+    'Data devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_DataDeviceTags,
+        element_type=DB.BuiltInCategory.OST_DataDevices
+        ),
+    'Duct accessories': Taggable(
+        tag_type=DB.BuiltInCategory.OST_DuctAccessoryTags,
+        element_type=DB.BuiltInCategory.OST_DuctAccessory
+        ),
+    'Electrical fixtures': Taggable(
+        tag_type=DB.BuiltInCategory.OST_ElectricalFixtureTags,
+        element_type=DB.BuiltInCategory.OST_ElectricalFixtures
+        ),
+    'Fire alarm devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_FireAlarmDeviceTags,
+        element_type=DB.BuiltInCategory.OST_FireAlarmDevices
+        ),
+    'Lighting devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_LightingDeviceTags,
+        element_type=DB.BuiltInCategory.OST_LightingDevices
+        ),
+    'Lighting fixtures': Taggable(
+        tag_type=DB.BuiltInCategory.OST_LightingFixtureTags,
+        element_type=DB.BuiltInCategory.OST_LightingFixtures
+        ),
+    'Nurse call devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_NurseCallDeviceTags,
+        element_type=DB.BuiltInCategory.OST_NurseCallDevices
+        ),
+    'Pipe accessories': Taggable(
+        tag_type=DB.BuiltInCategory.OST_PipeAccessoryTags,
+        element_type=DB.BuiltInCategory.OST_PipeAccessory
+        ),
+    'Plumbing equipment': Taggable(
+        tag_type=DB.BuiltInCategory.OST_PlumbingFixtureTags,
+        element_type=DB.BuiltInCategory.OST_PlumbingFixtures
+        ),
+    'Plumbing fixtures': Taggable(
+        tag_type=DB.BuiltInCategory.OST_PlumbingFixtureTags,
+        element_type=DB.BuiltInCategory.OST_PlumbingFixtures
+        ),
+    'Security devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_SecurityDeviceTags,
+        element_type=DB.BuiltInCategory.OST_SecurityDevices
+        ),
+        'Sprinklers': Taggable(
+            tag_type=DB.BuiltInCategory.OST_SprinklerTags,
+            element_type=DB.BuiltInCategory.OST_Sprinklers
+            ),
+    'Telephone devices': Taggable(
+        tag_type=DB.BuiltInCategory.OST_TelephoneDeviceTags,
+        element_type=DB.BuiltInCategory.OST_TelephoneDevices
         ),
 }
 
@@ -167,9 +235,16 @@ if selected_switch:
         untagged_elements = []
         for eltid in target_tags:
             elt = revit.doc.GetElement(eltid)
-            if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
-                tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
-
+            if HOST_APP.is_newer_than(2023):
+                if elt.GetTaggedLocalElementIds() != DB.ElementId.InvalidElementId:
+                    tagged_elements.append(List[DB.ElementId](elt.GetTaggedLocalElementIds())[0].Value)
+            elif HOST_APP.is_newer_than(2022, or_equal=True):
+                if elt.GetTaggedLocalElementIds() != DB.ElementId.InvalidElementId:
+                    tagged_elements.append(List[DB.ElementId](elt.GetTaggedLocalElementIds())[0].IntegerValue)
+            else:
+                if elt.TaggedLocalElementId != DB.ElementId.InvalidElementId:
+                    tagged_elements.append(elt.TaggedLocalElementId.IntegerValue)
+                    
         for elid in target_elements:
             el = revit.doc.GetElement(elid)
             if el.Id.IntegerValue not in tagged_elements:

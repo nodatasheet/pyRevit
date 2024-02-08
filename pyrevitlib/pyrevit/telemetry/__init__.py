@@ -1,22 +1,26 @@
-"""
-This module manages the telemetry system.
+"""This module manages the telemetry system.
 
-    This function is used to setup the telemetry system on pyRevit startup:
-        >>> setup_telemetry()
+This function is used to setup the telemetry system on pyRevit startup:
+    ```python
+    setup_telemetry()
+    ```
 
-    These functions are used to query information about the logging system:
-        >>> get_telemetry_state()
+These functions are used to query information about the logging system:
+    ```python
+    get_telemetry_state()
+    ```
 
-        >>> get_apptelemetry_state()
+    ```python
+    get_apptelemetry_state()
+    ```
 
-    This module also provides a wrapper class around the command results
-    dictionary that is included with the telemetry record.
+This module also provides a wrapper class around the command results
+dictionary that is included with the telemetry record.
 
-    Scripts should use the instance of this class provided by the
-    script module. See `script.get_results()` for examples
+Scripts should use the instance of this class provided by the
+script module. See `script.get_results()` for examples
 """
 import os.path as op
-import urllib2
 import json
 
 from pyrevit import HOST_APP, PYREVIT_VERSION_APP_DIR, PYREVIT_FILE_PREFIX
@@ -24,6 +28,7 @@ from pyrevit.runtime.types import EventType, EventTelemetry
 from pyrevit import coreutils
 from pyrevit.coreutils.logger import get_logger
 from pyrevit.coreutils import envvars
+from pyrevit.compat import urlopen
 
 from pyrevit.loader import sessioninfo
 from pyrevit.userconfig import user_config
@@ -197,7 +202,7 @@ def get_status_from_url(server_url):
         server_url = server_url.replace('events/', 'status')
 
     try:
-        return json.loads(urllib2.urlopen(server_url).read())
+        return json.loads(urlopen(server_url).read())
     except Exception:
         return None
 
@@ -211,7 +216,6 @@ def get_status():
 
 def setup_telemetry(session_id=None):
     """Sets up the telemetry default config and environment values."""
-
     # make sure session id is availabe
     if not session_id:
         session_id = sessioninfo.get_session_uuid()
@@ -290,7 +294,7 @@ def setup_telemetry(session_id=None):
         set_apptelemetry_server_url(apptelemetry_server_url)
 
     # setup events
-    new_telemetry_handler = EventTelemetry(session_id)
+    new_telemetry_handler = EventTelemetry(session_id, HOST_APP.username)
     telemetry_handler = get_apptelemetry_handler()
     if telemetry_handler:
         # clear existing
