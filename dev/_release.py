@@ -205,7 +205,7 @@ def setup_certificate(_: Dict[str, str]):
 
 
 def _sign_binary(filepath: str, cert_name: str, cert_fingerprint: str):
-    res = utils.system(
+    res, _ = utils.system(
         [
             install.get_tool("signtool"),
             "sign",
@@ -256,7 +256,7 @@ def sign_binaries(_: Dict[str, str]):
 
 
 def _ensure_clean_tree():
-    res = utils.system(["git", "status"])
+    res, _ = utils.system(["git", "status"])
     if "nothing to commit" not in res:
         print("You have uncommited changes in working tree. Commit those first")
         sys.exit(1)
@@ -281,7 +281,7 @@ def _build_msi_installers():
 def _build_choco_packages():
     build_version_urlsafe = props.get_version(install=False, url_safe=True)
     base_url = (
-        "https://github.com/eirannejad/pyRevit/"
+        "https://github.com/pyrevitlabs/pyRevit/"
         f"releases/download/v{build_version_urlsafe}/"
     )
     install_version = props.get_version(install=True)
