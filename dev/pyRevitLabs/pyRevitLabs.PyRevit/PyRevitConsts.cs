@@ -42,7 +42,7 @@ namespace pyRevitLabs.PyRevit {
         public const string ReleaseDirName = "release";
         public const string SitePackagesDirName = "site-packages";
         public const string PyRevitfileFilename = "PyRevitfile";
-        
+
         public const string NetFxFolder = "netfx";
         public const string NetCoreFolder = "netcore";
 
@@ -56,6 +56,9 @@ namespace pyRevitLabs.PyRevit {
         public const string AddinClassName = "PyRevitLoader.PyRevitLoaderApplication";
         public const string VendorId = "eirannejad";
         public const string LegacyEngineDllName = "pyRevitLoader.dll";
+
+        // install scope marker (all-users installer creates this under %ProgramData%\pyRevit\)
+        public const string InstallAllUsersMarkerFileName = "install_all_users";
 
         // core configs
         public const string ConfigsTrueString = "true";
@@ -85,6 +88,12 @@ namespace pyRevitLabs.PyRevit {
         public const int ConfigsMinDriveSpaceDefault = 0;
         public const string ConfigsLoadBetaKey = "loadbeta";
         public const bool ConfigsLoadBetaDefault = false;
+        public const string ConfigsCloseOtherOutputsKey = "closeotheroutputs";
+        public const bool ConfigsCloseOtherOutputsDefault = false;
+        public const string ConfigsCloseOutputModeKey = "closeoutputmode";
+        public const string ConfigsCloseOutputModeDefault = "currentcommand";
+        public const string ConfigsCloseOutputModeCurrentCommand = "currentcommand";
+        public const string ConfigsCloseOutputModeCloseAll = "closeall";
         public const string ConfigsCPythonEngineKey = "cpyengine";
         public const int ConfigsCPythonEngineDefault = 0;
         public const string ConfigsLocaleKey = "user_locale";
@@ -170,16 +179,33 @@ namespace pyRevitLabs.PyRevit {
         public const string BundleScriptGrasshopperXPostfix = ".ghx";
         public const string BundleScriptRevitFamilyPostfix = ".rfa";
 
+        // loader settings
+        public const string ConfigsNewLoaderKey = "new_loader";
+        public const bool ConfigsNewLoaderDefault = true;
+
         // theme
         public static SolidColorBrush PyRevitAccentBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xf3, 0x9c, 0x12));
         public static SolidColorBrush PyRevitBackgroundBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0x2c, 0x3e, 0x50));
 
 
+        // install scope: true only when admin installer created the all-users marker
+        private static bool? _isInstallAllUsers;
+        public static bool IsInstallAllUsers() {
+            if (_isInstallAllUsers.HasValue)
+                return _isInstallAllUsers.Value;
+            string markerPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                PyRevitLabsConsts.AppdataDirName,
+                InstallAllUsersMarkerFileName);
+            _isInstallAllUsers = File.Exists(markerPath);
+            return _isInstallAllUsers.Value;
+        }
+
         // methods
         public static string FindConfigFileInDirectory(string sourcePath) {
             var configMatcher = new Regex(ConfigsFileRegexPattern, RegexOptions.IgnoreCase);
             // capture exceptions that might occur getting the files under sourcePath
-            // 
+            //
             try {
                 if (CommonUtils.VerifyPath(sourcePath))
                     foreach (string subFile in Directory.GetFiles(sourcePath))
@@ -196,11 +222,11 @@ namespace pyRevitLabs.PyRevit {
         public static string DefaultExtensionsPath =>
             Path.Combine(PyRevitLabsConsts.PyRevitPath, PyRevitConsts.ExtensionsDefaultDirName);
 
-        // pyRevit config file path
+        // pyRevit config file path (driven by install scope marker, not elevation)
         // @reviewed
         public static string ConfigFilePath {
             get {
-                string configRoot = UserEnv.IsRunAsElevated() ? PyRevitLabsConsts.PyRevitProgramDataPath : PyRevitLabsConsts.PyRevitPath;
+                string configRoot = IsInstallAllUsers() ? PyRevitLabsConsts.PyRevitProgramDataPath : PyRevitLabsConsts.PyRevitPath;
                 var cfgFile = FindConfigFileInDirectory(configRoot);
                 return cfgFile != null ? cfgFile : Path.Combine(configRoot, DefaultConfigsFileName);
             }

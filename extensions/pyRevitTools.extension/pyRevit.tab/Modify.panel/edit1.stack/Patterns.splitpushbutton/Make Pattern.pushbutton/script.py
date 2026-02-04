@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #pylint: disable=C0111,E0401,C0103,W0201,W0613
 import re
 import math
@@ -70,17 +71,17 @@ class MakePatternWindow(forms.WPFWindow):
 
         if not self._selection:
             self.resolver_ops.IsEnabled = False
-            self.create_b.Content = "No Linework Selected"
+            self.create_b.Content = self.get_locale_string("NoLineworkSelected")
             self.create_b.IsEnabled = False
             self._export_only = True
-            self.prompt_lb.Content = "Select Pattern to Export"
+            self.prompt_lb.Content = self.get_locale_string("SelectPatternToExport")
 
         if revit.active_view.ViewType not in acceptable_viewtypes:
             self.resolver_ops.IsEnabled = False
-            self.create_b.Content = "Incompatible View Type"
+            self.create_b.Content = self.get_locale_string("IncompatibleViewType")
             self.create_b.IsEnabled = False
             self._export_only = True
-            self.prompt_lb.Content = "Select Pattern to Export"
+            self.prompt_lb.Content = self.get_locale_string("SelectPatternToExport")
 
         self.setup_patnames()
         self.setup_export_units()
@@ -395,12 +396,8 @@ class MakePatternWindow(forms.WPFWindow):
             forms.alert('Pattern {} created/updated.'.format(self.pat_name))
 
     def verify_name(self):
-        if not self.pat_name:
-            forms.alert('Type a name for the pattern first')
-            return False
-        elif not re.search('[a-zA-Z0-9]', self.pat_name):
-            forms.alert('Pattern name must have at least '
-                        'one character or digit')
+        if not self.pat_name.strip():
+            forms.alert('Pattern name cannot be empty or contain only spaces.')
             return False
         elif self.pat_name.lower() in readonly_patterns:
             forms.alert('Read-Only pattern with name "{}" already exists '
